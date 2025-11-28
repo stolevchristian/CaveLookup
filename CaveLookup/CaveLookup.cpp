@@ -55,29 +55,6 @@ std::string ProtectToString(DWORD protect) {
     return result;
 }
 
-std::wstring GetModuleNameFromAddress(HANDLE hProcess, uintptr_t address) {
-    HMODULE modules[1024];
-    DWORD needed;
-
-    if (EnumProcessModules(hProcess, modules, sizeof(modules), &needed)) {
-        for (size_t i = 0; i < needed / sizeof(HMODULE); i++) {
-            MODULEINFO modInfo;
-            if (GetModuleInformation(hProcess, modules[i], &modInfo, sizeof(modInfo))) {
-                uintptr_t modBase = (uintptr_t)modInfo.lpBaseOfDll;
-                uintptr_t modEnd = modBase + modInfo.SizeOfImage;
-
-                if (address >= modBase && address < modEnd) {
-                    wchar_t name[MAX_PATH];
-                    if (GetModuleBaseNameW(hProcess, modules[i], name, MAX_PATH)) {
-                        return name;
-                    }
-                }
-            }
-        }
-    }
-    return L"<unknown>";
-}
-
 int main()
 {
     if (!m_man.AttachProcess("GameProcess.exe"))
